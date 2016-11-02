@@ -7,12 +7,12 @@ import sys
 sys.setrecursionlimit(10000)
 
 # This function is a generic brute-force search.
-# It takes and start node, a desired destination co-ordinate, and a storage class.
+# It takes a start node, a desired destination co-ordinate, and a storage class.
 # Whether it is depth/breadth first search is determined by the storage class passed in.
 def findRoute(startingNode, soughtValue, storageClass):
   # This is the processing store. It is an instance of the storage class. 
   # It can accept a node, and give a node back. 
-  # Implementation of these operations is hidden.
+  # Implementation of these operations is hidden in data_structures.py.
   node_store = storageClass()
   node_store.put_node(startingNode)
   
