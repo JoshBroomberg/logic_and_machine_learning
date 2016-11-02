@@ -73,7 +73,6 @@ def reset():
   global a_weight
   global b_weight
   global bias_weight
-  global weights
 
   a_weight = random.random()
   b_weight = random.random()
