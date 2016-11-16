@@ -4,7 +4,7 @@ from data_structures import RoutingQueue, RoutingStack
 # Sets system limit for recursive depth.
 # Important to allow the plotting of long paths later on.
 import sys
-sys.setrecursionlimit(10000)
+sys.setrecursionlimit(100)
 
 # This function is a generic brute-force search.
 # It takes a start node, a desired destination co-ordinate, and a storage class.
@@ -54,7 +54,6 @@ def traversePath(node_path_dictionary, destination_node_value):
     return "Path found. \n\nStart:\n"
   else:  
     return traversePath(node_path_dictionary, node_path_dictionary[destination_node_value]) + str(destination_node_value) + "\n"
-
 # Use the findRoute method with a queue.
 # This means that the 'children nodes' of each node are added to the back of the processing list. 
 # This means all sibling nodes, stemming from a grandfather node, are processed before (grand)children.
