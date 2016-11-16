@@ -93,4 +93,4 @@ if eval_population():
 elif generations >= generations_limit: 
   print "Generations limit exceeded: ", generations_limit
 elif len(population) == 0:
-  print "population went extinct! Try upping your size, or decreasing kill chance."
+  print "population went extinct! Try upping your population size, or decreasing kill chance."
