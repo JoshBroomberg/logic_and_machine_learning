@@ -24,6 +24,7 @@ population = [Chromosome(None) for _ in range(starting_population)]
 def reset():
   global population
   population = [Chromosome(None) for _ in range(starting_population)]
+  
 # Breed two chromosomes by selecting a random pivot index
 # and swapping the genes after that pivot forming
 # two new offspring.
@@ -35,7 +36,7 @@ def breed(chrom1, chrom2):
   return (Chromosome(new_chrom1), Chromosome(new_corom2))
 
 # Mutate a chromosome by choosing a random location
-# and flipping the gene at that location.
+# and 'flipping' the gene at that location.
 def mutate(chrom):
   mutation_location = random.randint(0, (len(chrom.genome)-1))
   bases = list(chrom.genome)
