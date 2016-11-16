@@ -37,8 +37,8 @@ def breed(chrom1, chrom2):
   # select a pivot that ensures at least one base swaps
   pivot = random.randint(1, (len(chrom1.genome)-2))
   new_chrom1 = chrom1.genome[:pivot] + chrom2.genome[pivot:]
-  new_corom2 = chrom2.genome[:pivot] + chrom1.genome[pivot:]
-  return (Chromosome(new_chrom1), Chromosome(new_corom2))
+  new_chrom2 = chrom2.genome[:pivot] + chrom1.genome[pivot:]
+  return (Chromosome(new_chrom1), Chromosome(new_chrom2))
 
 # Mutate a chromosome by choosing a random location
 # and 'flipping' the gene at that location.
