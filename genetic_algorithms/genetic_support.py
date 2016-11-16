@@ -53,7 +53,7 @@ class Chromosome:
 
   ### STATIC UTILITY METHODS ###
 
-  # Create a random 12 digit binary string
+  # Create a random 20 gene 'genome string'
   @staticmethod
   def random_genome():
     return ''.join([str(x) for x in np.random.randint(2, size=(20,))])
