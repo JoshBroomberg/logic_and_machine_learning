@@ -1,6 +1,7 @@
 import random
 import math
 from genetic_support import Chromosome
+from collections import defaultdict
 
 ### OPTIONS ###\
 
@@ -57,46 +58,96 @@ def eval_population():
       return chromosome
   return False
 
-# Counter for generations that have passed.
 generations = 0 
 
-# Loop until a solution is found, or the generation limit is reached, or 
-# the population dies out.
-while not eval_population() and (generations < generations_limit) and (len(population) > 0):
-  print "generation: ", generations + 1, "population: ", len(population)
-  
-  # Kill some chromosomes, if configured to do so.
-  # if kill_chance > 0:
-  population = [x for x in population if not ((not x.is_viable()) and (1000*kill_chance >= random.randint(1, 1000)))]
+def run_simulation(simulation_index):
+  global generations
+  global population
 
-  # Shuffle chromosome order to randomise breeding.
-  random.shuffle(population)
-  
-  # Breed the number of pairs based on breeding proportion.
-  num_breeding_pairs = int((len(population)/2)*breeding_proportion)
+  # Counter for generations that have passed.
+  generations = 0 
+  # Loop until a solution is found, or the generation limit is reached, or 
+  # the population dies out.
+  while not eval_population() and (generations < generations_limit) and (len(population) > 0):
+    print "trial:", simulation_index+1, "/", trials, "generation: ", generations + 1, "population: ", len(population)
+    
+    # Kill some chromosomes, if configured to do so.
+    # if kill_chance > 0:
+    population = [x for x in population if not ((not x.is_viable()) and (1000*kill_chance >= random.randint(1, 1000)))]
 
-  for index in range(0, num_breeding_pairs, 2):
-    (new_crom1, new_crom2) = breed(population[index], population[index+1])
-    population[index] = new_crom1
-    population[index+1] = new_crom2
+    # Shuffle chromosome order to randomise breeding.
+    random.shuffle(population)
+    
+    # Breed the number of pairs based on breeding proportion.
+    num_breeding_pairs = int((len(population)/2)*breeding_proportion)
 
-  # Mutate some chromosomes based on chance.
-  for index, chromosome in enumerate(population):
-    if 1000*mutation_chance >= random.randint(1, 1000):
-      population[index] = mutate(chromosome)
+    for index in range(0, num_breeding_pairs, 2):
+      (new_crom1, new_crom2) = breed(population[index], population[index+1])
+      population[index] = new_crom1
+      population[index+1] = new_crom2
 
-  generations += 1
+    # Mutate some chromosomes based on chance.
+    for index, chromosome in enumerate(population):
+      if 1000*mutation_chance >= random.randint(1, 1000):
+        population[index] = mutate(chromosome)
 
-# Display results. 
-print ""
+    generations += 1
+
+# Run analysis on parameters. 
 print "######"
 
-if eval_population():
-  print "Evolution has succeeded!"
-  print "Genome: ", eval_population().genome
-  print "Decoded genome: ", eval_population().decode_genome(), "=", target_value
-  print "Generations taken: ", generations
-elif generations >= generations_limit: 
-  print "Generations limit exceeded: ", generations_limit
-elif len(population) == 0:
-  print "population went extinct! Try upping your population size, or decreasing kill chance."
+# Number of trials to run.
+trials = 50
+results = []
+
+# Run simulations and store results.
+for index in range(trials):
+  run_simulation(index)
+  result = {}
+  if eval_population():
+    result["success"] = True
+    result["genome"] = eval_population().genome
+    result["decoded genome"] = eval_population().genome +":" + eval_population().decode_genome() + "=" + str(target_value)
+    result["generations taken"] = generations
+  elif generations >= generations_limit: 
+    result["success"] = False
+    result["failure_reason"] = "Gen Limit"
+  elif len(population) == 0:
+    result["success"] = False
+    result["failure_reason"] = "Extinct"
+  else:
+    print "oh oh"
+
+  results.append(result)
+  reset()
+
+# Analyze results.
+def one():
+  return 1
+successes = 0
+valid_genomes = defaultdict(one)
+generation_failures = 0
+extinction_failures = 0
+
+for result in results:
+
+  if result["success"]:
+    successes += 1
+    valid_genomes[result["decoded genome"]] += 1
+  else:
+    if result["failure_reason"] == "Gen Limit":
+      generation_failures += 1
+    elif result["failure_reason"] == "Extinct":
+      extinction_failures += 1
+
+print
+print "successes: ", successes
+print "Generation limit failures: ", generation_failures 
+print "Population extinction failures: ", extinction_failures 
+print "valid genomes"
+print  "count: ", "genome" 
+for genome, count in valid_genomes.iteritems():
+  print count,":", genome
+
+
+
