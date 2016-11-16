@@ -2,20 +2,25 @@ import random
 import math
 from genetic_support import Chromosome
 
-### OPTIONS ###
+### OPTIONS ###\
+
+# The value that is sought through evolution.
 target_value = 42
 
-starting_population = 100
+# Number of chromosomes to start with.
+starting_population = 400
+
 # Breeding can be between 0 and 1 inclusive.
 breeding_proportion = 0.5
 
 # Kill proportion. Controls how many of the inviable solutions die per generation
-# Killing is off by default
-kill_chance = 0
+# Killing of inviable genomes is 0.005 by default.
+kill_chance = 0.005
 
 # Mutation chance can be between 0.000 and 1. 0.001 recommended.
 mutation_chance = 0.01
 
+# How many iterations of breeding/mutation are allowed.
 generations_limit = 1000
 #### END OPTIONS ####
 
@@ -61,8 +66,8 @@ while not eval_population() and (generations < generations_limit) and (len(popul
   print "generation: ", generations + 1, "population: ", len(population)
   
   # Kill some chromosomes, if configured to do so.
-  if kill_chance > 0:
-    population = [x for x in population if (not x.is_viable()) and (random.randint(0, 1000)/1000.0 < kill_chance)]
+  # if kill_chance > 0:
+  population = [x for x in population if not ((not x.is_viable()) and (1000*kill_chance >= random.randint(1, 1000)))]
 
   # Shuffle chromosome order to randomise breeding.
   random.shuffle(population)
@@ -77,7 +82,7 @@ while not eval_population() and (generations < generations_limit) and (len(popul
 
   # Mutate some chromosomes based on chance.
   for index, chromosome in enumerate(population):
-    if random.randint(0, 1000)/1000.0 < mutation_chance:
+    if 1000*mutation_chance >= random.randint(1, 1000):
       population[index] = mutate(chromosome)
 
   generations += 1
@@ -87,7 +92,7 @@ print ""
 print "######"
 
 if eval_population():
-  print "solution found!"
+  print "Evolution has succeeded!"
   print "Genome: ", eval_population().genome
   print "Decoded genome: ", eval_population().decode_genome(), "=", target_value
   print "Generations taken: ", generations
