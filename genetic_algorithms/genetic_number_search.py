@@ -2,6 +2,9 @@ import random
 import math
 from genetic_support import Chromosome
 from collections import defaultdict
+import os
+
+os.system('clear')
 
 ### OPTIONS ###\
 
@@ -24,11 +27,13 @@ mutation_chance = 0.01
 # How many iterations of breeding/mutation are allowed.
 generations_limit = 1000
 
-# Sort population by fitness or shuffle.
-shuffle = False
+# If true, breeding is random, not based on fitness. 
+# If falsem, population is sorted on fitness, and breeding
+# occurs between chromosomes of similar fitness.
+breeding_shuffle = True
 
 # Number of trials to run with parameters above.
-trials = 50
+trials = 5
 
 #### END OPTIONS ####
 
@@ -76,13 +81,13 @@ def run_simulation(simulation_index):
   # Loop until a solution is found, or the generation limit is reached, or 
   # the population dies out.
   while not eval_population() and (generations < generations_limit) and (len(population) > 0):
-    print "trial:", simulation_index+1, "/", trials, "generation: ", generations + 1, "population: ", len(population)
+    print "trial:", simulation_index+1, "/", trials, "generation: ", generations + 1, "/", generations_limit,"\r",
     
     # Kill some chromosomes, if configured to do so.
     # if kill_chance > 0:
     population = [x for x in population if not ((not x.is_viable()) and (1000*kill_chance >= random.randint(1, 1000)))]
 
-    if shuffle:
+    if breeding_shuffle:
     # Shuffle chromosome order to randomise breeding.
       random.shuffle(population)
     else:
@@ -104,7 +109,6 @@ def run_simulation(simulation_index):
     generations += 1
 
 # Run analysis on parameters. 
-print "######"
 
 results = []
 
@@ -115,7 +119,7 @@ for index in range(trials):
   if eval_population():
     result["success"] = True
     result["genome"] = eval_population().genome
-    result["decoded genome"] = eval_population().genome +":" + eval_population().decode_genome() + "=" + str(target_value)
+    result["decoded genome"] = eval_population().decode_genome() + "=" + str(target_value) + " (" + eval_population().genome +")" 
     result["generations taken"] = generations
   elif generations >= generations_limit: 
     result["success"] = False
@@ -134,6 +138,7 @@ def zero():
   return 0
 
 successes = 0
+generations_sum = 0
 valid_genomes = defaultdict(zero)
 generation_failures = 0
 extinction_failures = 0
@@ -143,6 +148,7 @@ for result in results:
   if result["success"]:
     successes += 1
     valid_genomes[result["decoded genome"]] += 1
+    generations_sum += result["generations taken"]
   else:
     if result["failure_reason"] == "Gen Limit":
       generation_failures += 1
@@ -150,13 +156,16 @@ for result in results:
       extinction_failures += 1
 
 print
-print "successes: ", successes
+os.system('clear')
+print "#### DONE ####\n",
+print "Successes: ", successes
+print "Average num of generations: ", generations_sum/float(successes)
 print "Generation limit failures: ", generation_failures 
 print "Population extinction failures: ", extinction_failures 
-print "valid genomes"
-print  "count: ", "genome" 
+print
+print "Valid genomes:"
 for genome, count in valid_genomes.iteritems():
-  print count,":", genome
+  print genome, "frequency:", count
 
 
 
