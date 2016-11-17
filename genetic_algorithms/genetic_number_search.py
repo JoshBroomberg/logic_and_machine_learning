@@ -9,7 +9,7 @@ from collections import defaultdict
 target_value = 42
 
 # Number of chromosomes to start with.
-starting_population = 400
+starting_population = 200
 
 # Breeding can be between 0 and 1 inclusive.
 breeding_proportion = 0.5
@@ -23,13 +23,20 @@ mutation_chance = 0.01
 
 # How many iterations of breeding/mutation are allowed.
 generations_limit = 1000
+
+# Sort population by fitness or shuffle.
+shuffle = False
+
+# Number of trials to run with parameters above.
+trials = 50
+
 #### END OPTIONS ####
 
-population = [Chromosome(None) for _ in range(starting_population)]
+population = [Chromosome(None, target_value) for _ in range(starting_population)]
 
 def reset():
   global population
-  population = [Chromosome(None) for _ in range(starting_population)]
+  population = [Chromosome(None, target_value) for _ in range(starting_population)]
   
 # Breed two chromosomes by selecting a random pivot index
 # and swapping the genes after that pivot forming
@@ -39,7 +46,7 @@ def breed(chrom1, chrom2):
   pivot = random.randint(1, (len(chrom1.genome)-2))
   new_chrom1 = chrom1.genome[:pivot] + chrom2.genome[pivot:]
   new_chrom2 = chrom2.genome[:pivot] + chrom1.genome[pivot:]
-  return (Chromosome(new_chrom1), Chromosome(new_chrom2))
+  return (Chromosome(new_chrom1, target_value), Chromosome(new_chrom2, target_value))
 
 # Mutate a chromosome by choosing a random location
 # and 'flipping' the gene at that location.
@@ -49,7 +56,7 @@ def mutate(chrom):
   
   # Flip the base
   bases[mutation_location] = str((int(bases[mutation_location])-1)**2)
-  return Chromosome("".join(bases))
+  return Chromosome("".join(bases), target_value)
 
 # Determine if a chromosome matches the desired value.
 def eval_population():
@@ -75,8 +82,11 @@ def run_simulation(simulation_index):
     # if kill_chance > 0:
     population = [x for x in population if not ((not x.is_viable()) and (1000*kill_chance >= random.randint(1, 1000)))]
 
+    if shuffle:
     # Shuffle chromosome order to randomise breeding.
-    random.shuffle(population)
+      random.shuffle(population)
+    else:
+      population.sort()
     
     # Breed the number of pairs based on breeding proportion.
     num_breeding_pairs = int((len(population)/2)*breeding_proportion)
@@ -96,8 +106,6 @@ def run_simulation(simulation_index):
 # Run analysis on parameters. 
 print "######"
 
-# Number of trials to run.
-trials = 50
 results = []
 
 # Run simulations and store results.
@@ -122,10 +130,11 @@ for index in range(trials):
   reset()
 
 # Analyze results.
-def one():
-  return 1
+def zero():
+  return 0
+
 successes = 0
-valid_genomes = defaultdict(one)
+valid_genomes = defaultdict(zero)
 generation_failures = 0
 extinction_failures = 0
 

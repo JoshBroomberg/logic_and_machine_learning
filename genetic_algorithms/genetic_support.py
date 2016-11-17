@@ -1,5 +1,6 @@
 import numpy as np
 import textwrap
+import sys
 
 class Chromosome:
   gene_dict = {
@@ -18,11 +19,17 @@ class Chromosome:
     "1101": "/",
   }
 
-  def __init__(self, genome):
+  def __init__(self, genome, target):
+    self.target = target
+
     if genome:
       self.genome = genome
     else:
       self.genome = Chromosome.random_genome()
+
+  # Allows sorting of an array of Chromosomes based on fitness.
+  def __cmp__(self, other):
+        return cmp(self.fitness(), other.fitness())
 
   # Return a string version of the binary genome as numbers/operators
   def decode_genome(self):
@@ -49,6 +56,15 @@ class Chromosome:
       return None
     else:
       return eval(self.decode_genome())
+
+  # Measures fitness of a chromosome based on absolute difference between target and value.
+  def fitness(self):
+    if not self.is_viable():
+      return None
+    elif self.target-self.value():
+      return sys.maxint
+    else:
+      return 1.0/((self.target-self.value())**2)
 
 
   ### STATIC UTILITY METHODS ###
